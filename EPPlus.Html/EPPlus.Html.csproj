@@ -38,6 +38,9 @@
       <HintPath>..\packages\EPPlus.4.1.0\lib\net40\EPPlus.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -48,6 +51,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contracts\Model\ICell.cs" />
+    <Compile Include="Contracts\Model\IRow.cs" />
+    <Compile Include="Contracts\Model\IBorderStyle.cs" />
+    <Compile Include="Contracts\Model\ITable.cs" />
+    <Compile Include="Converters\ExcelToStyle.cs" />
     <Compile Include="Converters\ExcelToCss.cs" />
     <Compile Include="EPPlusExtensions.cs" />
     <Compile Include="GlobalSuppressions.cs" />
@@ -60,6 +68,15 @@
     <Compile Include="Html\HtmlElement.cs" />
     <Compile Include="Html\HtmlElementCollection.cs" />
     <Compile Include="Html\RenderElement.cs" />
+    <Compile Include="Contracts\Model\IStyling.cs" />
+    <Compile Include="Json\JsonStyle.cs" />
+    <Compile Include="Json\LowercaseFirstContractResolver.cs" />
+    <Compile Include="Json\LowercaseContractResolver.cs" />
+    <Compile Include="Model\Cell.cs" />
+    <Compile Include="Model\BorderStyle.cs" />
+    <Compile Include="Model\Row.cs" />
+    <Compile Include="Model\Styling.cs" />
+    <Compile Include="Model\Table.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

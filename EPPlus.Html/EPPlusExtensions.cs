@@ -1,6 +1,10 @@
 ﻿
 using EPPlus.Html.Converters;
 using EPPlus.Html.Html;
+using EPPlus.Html.Json;
+using EPPlus.Html.Model;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using OfficeOpenXml;
 using System;
 using System.Linq;
@@ -8,7 +12,7 @@ using System.Text;
 
 namespace EPPlus.Html
 {
-    public static class EPPlusExtensions 
+    public static class EPPlusExtensions
     {
         public static string ToHtml(this ExcelWorksheet sheet)
         {
@@ -62,6 +66,76 @@ namespace EPPlus.Html
             }
 
             return htmlTable.ToString();
+        }
+
+        public static string ToJson(this ExcelWorksheet sheet)
+        {
+            return ToJson(sheet, JsonStyle.AsIs);
+        }
+        public static string ToJson(this ExcelWorksheet sheet, JsonStyle jsonStyle)
+        {
+            ITable table = ConvertToTable(sheet);
+            IContractResolver contractResolver = null;
+            Formatting formatting = Formatting.None;
+
+            switch (jsonStyle)
+            {
+                case JsonStyle.Indented:
+                    formatting = Formatting.Indented;
+                    break;
+                case JsonStyle.Lc:
+                    contractResolver = new LowercaseContractResolver();
+                    break;
+                case JsonStyle.LcIndented:
+                    contractResolver = new LowercaseContractResolver();
+                    formatting = Formatting.Indented;
+                    break;
+                case JsonStyle.LcFirst:
+                    contractResolver = new LowercaseFirstContractResolver();
+                    break;
+                case JsonStyle.LcFirstIndented:
+                    contractResolver = new LowercaseFirstContractResolver();
+                    formatting = Formatting.Indented;
+                    break;
+            }
+
+            if (contractResolver == null)
+            {
+                return JsonConvert.SerializeObject(table, formatting);
+            }
+            var settings = new JsonSerializerSettings()
+            {
+                ContractResolver = contractResolver
+            };
+            return JsonConvert.SerializeObject(table, formatting, settings);
+        }
+
+        private static ITable ConvertToTable(this ExcelWorksheet sheet)
+        {
+            int lastRow = sheet.Dimension.Rows;
+            int lastCol = sheet.Dimension.Columns;
+
+            ITable table = new Table();
+            table.Styling = sheet.ToStyle();
+
+            //render rows
+            for (int rowNr = 1; rowNr <= lastRow; rowNr++)
+            {
+                ExcelRow excelRow = sheet.Row(rowNr);
+                IRow row = new Row();
+                table.Rows.Add(row);
+                row.Styling = excelRow.ToStyle();
+
+                for (int col = 1; col <= lastCol; col++)
+                {
+                    ExcelRange excelCell = sheet.Cells[rowNr, col];
+                    ICell cell = new Cell();
+                    row.Cells.Add(cell);
+                    cell.Text = excelCell.Text;
+                    cell.Styling = excelCell.ToStyle();
+                }
+            }
+            return table;
         }
 
         public static void ConsolidateStyles(this HtmlElement elmt, CssClassTable classTable)
